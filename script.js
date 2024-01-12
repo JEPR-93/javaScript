@@ -21,7 +21,7 @@ let letrasUsadas = [];
 
 // Función para obtener una palabra aleatoria de los arrays
 function obtenerPalabraAleatoria() {
-    const todasLasPalabras = palabras.concat(palabrasAdicionales);
+    const todasLasPalabras = [...palabras, ...palabrasAdicionales];
     return todasLasPalabras[Math.floor(Math.random() * todasLasPalabras.length)];
 }
 
@@ -48,18 +48,11 @@ function actualizarImagenAhorcado() {
 
 // Función para manejar la entrada del usuario
 function manejarEntrada(letra) {
-    if (letrasUsadas.includes(letra)) {
-        alert('Ya has utilizado esa letra. Elige otra.');
-        return;
-    }
-
-    letrasUsadas.push(letra);
+    letrasUsadas.includes(letra) ? alert('Ya has utilizado esa letra. Elige otra.') : letrasUsadas.push(letra);
 
     if (palabraSecreta.includes(letra)) {
         for (let i = 0; i < palabraSecreta.length; i++) {
-            if (palabraSecreta[i] === letra) {
-                palabraAdivinada[i] = letra;
-            }
+            palabraSecreta[i] === letra ? palabraAdivinada[i] = letra : null;
         }
     } else {
         intentosRestantes--;
@@ -100,7 +93,6 @@ actualizarImagenAhorcado();
 // Evento para manejar la entrada del usuario
 document.addEventListener('keydown', function (event) {
     const letra = event.key.toLowerCase();
-    if (letra.match(/[a-z]/) && letra.length === 1) {
-        manejarEntrada(letra);
-    }
+    letra.match(/[a-z]/) && letra.length === 1 ? manejarEntrada(letra) : null;
 });
+
