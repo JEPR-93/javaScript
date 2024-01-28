@@ -20,23 +20,36 @@ let intentosRestantes = 6;
 let letrasUsadas = [];
 
 // Función para obtener una palabra aleatoria de los arrays
-function obtenerPalabraAleatoria() {
-    const todasLasPalabras = [...palabras, ...palabrasAdicionales];
+async function obtenerPalabraAleatoria() {
+    const palabrasDesdeJSON = await obtenerPalabrasDesdeJSON();
+    const todasLasPalabras = [...palabras, ...palabrasAdicionales, ...palabrasDesdeJSON];
     return todasLasPalabras[Math.floor(Math.random() * todasLasPalabras.length)];
 }
 
+// Nueva función que utiliza fetch para obtener palabras desde un archivo JSON local
+async function obtenerPalabrasDesdeJSON() {
+    try {
+        const response = await fetch('palabras.json'); // Nombre del archivo con las palabras
+        const data = await response.json();
+        return data.palabras;
+    } catch (error) {
+        console.error('Error al cargar las palabras desde el archivo JSON:', error);
+        return [];
+    }
+}
+
 // Función para mostrar la palabra actualizada en la interfaz
-function mostrarPalabra() {
-    document.getElementById('palabra').innerText = palabraAdivinada.join(' ');
+function mostrarPalabra(palabra) {
+    document.getElementById('palabra').innerText = palabra.join(' ');
 }
 
 // Función para mostrar los intentos restantes
-function mostrarIntentos() {
-    document.getElementById('intentos').innerText = `Intentos restantes: ${intentosRestantes}`;
+function mostrarIntentos(intentos) {
+    document.getElementById('intentos').innerText = `Intentos restantes: ${intentos}`;
 }
 
 // Función para mostrar las letras usadas
-function mostrarLetrasUsadas() {
+function mostrarLetrasUsadas(letrasUsadas) {
     document.getElementById('letras-usadas').innerText = `Letras usadas: ${letrasUsadas.join(', ')}`;
 }
 
@@ -46,7 +59,15 @@ function actualizarImagenAhorcado() {
     imagenAhorcado.src = `/asset/img/ahorcado.png-${6 - intentosRestantes}.png`;
 }
 
-// Función para manejar la entrada del usuario
+// Nueva función con desestructuración
+function mostrarInformacionJuego({ palabra, intentos, letrasUsadas }) {
+    mostrarPalabra(palabra);
+    mostrarIntentos(intentos);
+    mostrarLetrasUsadas(letrasUsadas);
+    actualizarImagenAhorcado();
+}
+
+// Modificación para usar la nueva función de mostrarInformacionJuego
 function manejarEntrada(letra) {
     letrasUsadas.includes(letra) ? alert('Ya has utilizado esa letra. Elige otra.') : letrasUsadas.push(letra);
 
@@ -58,10 +79,11 @@ function manejarEntrada(letra) {
         intentosRestantes--;
     }
 
-    mostrarPalabra();
-    mostrarIntentos();
-    mostrarLetrasUsadas();
-    actualizarImagenAhorcado();
+    mostrarInformacionJuego({
+        palabra: palabraAdivinada,
+        intentos: intentosRestantes,
+        letrasUsadas: letrasUsadas
+    });
 
     if (intentosRestantes === 0) {
         alert(`¡Perdiste! La palabra era "${palabraSecreta}".`);
@@ -78,17 +100,19 @@ function reiniciarJuego() {
     palabraAdivinada = Array(palabraSecreta.length).fill("_");
     intentosRestantes = 6;
     letrasUsadas = [];
-    mostrarPalabra();
-    mostrarIntentos();
-    mostrarLetrasUsadas();
-    actualizarImagenAhorcado();
+    mostrarInformacionJuego({
+        palabra: palabraAdivinada,
+        intentos: intentosRestantes,
+        letrasUsadas: letrasUsadas
+    });
 }
 
 // Inicializar el juego al cargar la página
-mostrarPalabra();
-mostrarIntentos();
-mostrarLetrasUsadas();
-actualizarImagenAhorcado();
+mostrarInformacionJuego({
+    palabra: palabraAdivinada,
+    intentos: intentosRestantes,
+    letrasUsadas: letrasUsadas
+});
 
 // Evento para manejar la entrada del usuario
 document.addEventListener('keydown', function (event) {
